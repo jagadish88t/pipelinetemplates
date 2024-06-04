@@ -8,6 +8,10 @@ parameters:
   - name: overrideParameters
     type: string
     default: false
+  - name: variablegroupfortest
+    type: string
+    default: false
+
 jobs:
   - job: 'Build_and_Validate_ADF'
     steps:
@@ -68,25 +72,33 @@ jobs:
           PathtoPublish: '$(Build.Repository.LocalPath)/build/ArmTemplate'
           ArtifactName: 'drop'
           publishLocation: 'Container'
-      - task: DownloadBuildArtifacts@1
-        inputs:
-          buildType: 'current'
-          downloadType: 'single'
-          artifactName: 'drop'
-          downloadPath: '$(System.ArtifactsDirectory)'
-      - task: AzureResourceManagerTemplateDeployment@3
-        inputs:
-          deploymentScope: 'Resource Group'
-          azureResourceManagerConnection: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
-          subscriptionId: '63bd2eef-d99c-4b36-a3b0-b89c12000aa7'
-          action: 'Create Or Update Resource Group'
-          resourceGroupName: 'ADF'
-          location: 'East US'
-          templateLocation: 'Linked artifact'
-          csmFile: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
-          csmParametersFile: '$(System.ArtifactsDirectory)/drop/ARMTemplateParametersForFactory.json'
-          # overrideParameters: '
-          #             -factoryName $(datafactoryname) 
-          #             -Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue $(Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue)'
-          overrideParameters: '${{parameters.overrideParameters}}'
-          deploymentMode: 'Incremental'
+  - deployment: 
+    environment: 'ADF_TEST'
+    variables: 
+      - group: ${{parameters.variablegroupfortest}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: DownloadBuildArtifacts@1
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'drop'
+                downloadPath: '$(System.ArtifactsDirectory)'
+            - task: AzureResourceManagerTemplateDeployment@3
+              inputs:
+                deploymentScope: 'Resource Group'
+                azureResourceManagerConnection: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
+                subscriptionId: '63bd2eef-d99c-4b36-a3b0-b89c12000aa7'
+                action: 'Create Or Update Resource Group'
+                resourceGroupName: 'ADF'
+                location: 'East US'
+                templateLocation: 'Linked artifact'
+                csmFile: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
+                csmParametersFile: '$(System.ArtifactsDirectory)/drop/ARMTemplateParametersForFactory.json'
+                # overrideParameters: '
+                #             -factoryName $(datafactoryname) 
+                #             -Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue $(Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue)'
+                overrideParameters: '${{parameters.overrideParameters}}'
+                deploymentMode: 'Incremental'
