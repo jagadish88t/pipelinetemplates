@@ -11,7 +11,7 @@ parameters:
   - name: variablegroupfortest
     type: string
     default: false
-
+    
 jobs:
   - job: 'Build_and_Validate_ADF'
     steps:
@@ -75,7 +75,7 @@ jobs:
   - deployment: 
     environment: 'ADF_TEST'
     variables: 
-      - group: ${{parameters.variablegroupfortest}}
+      - group: '${{parameters.variablegroupfortest}}'
     strategy:
       runOnce:
         deploy:
