@@ -1,0 +1,46 @@
+parameters:
+  - name: ADF_ResourceId
+    type: string
+    default: false
+  - name: buildfilespath
+    type: string
+    default: build
+
+jobs:
+  - job: 'Build_and_Validate_ADF'
+    steps:
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            $json = '{
+                "scripts":{
+                    "build":"node node_modules/@microsoft/azure-data-factory-utilities/lib/index"
+                },
+                "dependencies":{
+                    "@microsoft/azure-data-factory-utilities":"^1.0.0"
+                }
+            }'
+            $json | Out-File $(Build.Repository.LocalPath)/${{parameters.buildfilespath}}/package.json
+        displayName: 'Create package.json'
+      - task: UseNode@1
+        inputs:
+          version: '18.x'
+        displayName: 'Install Node.js'
+
+      - task: Npm@1
+        inputs:
+          command: 'install'
+          workingDir: '$(Build.Repository.LocalPath)/${{parameters.buildfilespath}}' #replace with the package.json folder
+          verbose: true
+        displayName: 'Install npm package'
+
+      # Validates all of the Data Factory resources in the repository. You'll get the same validation errors as when "Validate All" is selected.
+      # Enter the appropriate subscription and name for the source factory. Either of the "Validate" or "Validate and Generate ARM temmplate" options are required to perform validation. Running both is unnecessary.
+
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          workingDir: '$(Build.Repository.LocalPath)/${{parameters.buildfilespath}}' #replace with the package.json folder
+          customCommand: 'run build validate $(Build.Repository.LocalPath) ${{parameters.ADF_ResourceId}}'
+        displayName: 'Validate'
