@@ -92,7 +92,7 @@ jobs:
               inputs:
                 azureSubscription: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
                 ScriptType: 'FilePath'
-                ScriptPath: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
+                ScriptPath: '$(System.ArtifactsDirectory)/drop/PrePostDeploymentScript.ps1'
                 ScriptArguments: '-armTemplate $(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json -ResourceGroupName ADF -DataFactoryName $(datafactoryname) -predeployment $true -deleteDeployment $false'
                 azurePowerShellVersion: 'LatestVersion'
             - task: AzureResourceManagerTemplateDeployment@3
@@ -116,6 +116,6 @@ jobs:
               inputs:
                 azureSubscription: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
                 ScriptType: 'FilePath'
-                ScriptPath: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
+                ScriptPath: '$(System.ArtifactsDirectory)/drop/PrePostDeploymentScript.json'
                 ScriptArguments: '-armTemplate "$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json" -ResourceGroupName ADF -DataFactoryName $(datafactoryname) -predeployment $true -deleteDeployment $false'
                 azurePowerShellVersion: 'LatestVersion'
