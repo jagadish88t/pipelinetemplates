@@ -73,6 +73,7 @@ jobs:
           ArtifactName: 'drop'
           publishLocation: 'Container'
   - deployment: 
+    dependsOn: 'Build_and_Validate_ADF'
     environment: 'ADF_TEST'
     variables: 
       - group: '${{parameters.variablegroupfortest}}'
