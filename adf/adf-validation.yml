@@ -86,6 +86,14 @@ jobs:
                 downloadType: 'single'
                 artifactName: 'drop'
                 downloadPath: '$(System.ArtifactsDirectory)'
+            - task: AzurePowerShell@5
+              displayName: 'Pre-Deployment'
+              inputs:
+                azureSubscription: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
+                ScriptType: 'FilePath'
+                ScriptPath: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
+                ScriptArguments: '-armTemplate "$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json" -ResourceGroupName ADF -DataFactoryName $(datafactoryname) -predeployment $true -deleteDeployment $false'
+                azurePowerShellVersion: 'LatestVersion'
             - task: AzureResourceManagerTemplateDeployment@3
               inputs:
                 deploymentScope: 'Resource Group'
@@ -102,3 +110,11 @@ jobs:
                 #             -Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue $(Copy_TF_Files_copy1_properties_parameters_Sink_defaultValue)'
                 overrideParameters: '${{parameters.overrideParameters}}'
                 deploymentMode: 'Incremental'
+            - task: AzurePowerShell@5
+              displayName: 'Post-Deployment'
+              inputs:
+                azureSubscription: 'MySubscription(63bd2eef-d99c-4b36-a3b0-b89c12000aa7)'
+                ScriptType: 'FilePath'
+                ScriptPath: '$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json'
+                ScriptArguments: '-armTemplate "$(System.ArtifactsDirectory)/drop/ARMTemplateForFactory.json" -ResourceGroupName ADF -DataFactoryName $(datafactoryname) -predeployment $true -deleteDeployment $false'
+                azurePowerShellVersion: 'LatestVersion'
